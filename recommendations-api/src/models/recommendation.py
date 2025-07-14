@@ -1,15 +1,17 @@
-from enum import StrEnum, auto
+from typing import Self
 
 from geojson_pydantic import Polygon
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
-
-class DataType(StrEnum):
-    pistachios = auto()
-    clementines = auto()
+from config import DataType
 
 
 class Recommendation(BaseModel):
     description: str
     data_type: DataType
-    coordinates: Polygon
+    polygon: Polygon
+
+    @model_validator(mode="after")
+    def check_data_type(self) -> Self:
+        # TODO: check are by data type
+        return self

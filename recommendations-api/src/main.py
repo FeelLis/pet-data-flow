@@ -1,14 +1,8 @@
-import time
+import uvicorn
 
-from src.config import config
-from src.utils.logger import logger
-
-
-def main():
-    while True:
-        logger.info(f"Hello World! I'm {config.service_name}")
-        time.sleep(10)
-
+from api import app
+from config import config
+from utils.logger import logger
 
 if __name__ == "__main__":
-    main()
+    uvicorn.run(app, host="localhost", port=8000)

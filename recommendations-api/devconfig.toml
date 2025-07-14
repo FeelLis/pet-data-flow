@@ -1,0 +1,2 @@
+service_name = "recommendations-api"
+debug_mode = false

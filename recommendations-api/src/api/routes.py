@@ -1,7 +1,33 @@
+from enum import StrEnum
+from functools import lru_cache
+from typing import Literal
+
 from fastapi import APIRouter
+from geojson_pydantic import Polygon
+from geojson_pydantic.types import PolygonCoords
+
+from config import DataType, config
+from models.recommendation import Recommendation
 
 router = APIRouter(prefix="/recommendations")
 
+
+def _find_data_type_by_name(data_type_name: str) -> DataType:
+    for data_type_obj in config.data_types:
+        if data_type_obj.name == data_type_name:
+            return data_type_obj
+    raise ValueError(f"{data_type_name} not recognized as valid data type.")
+
+
 @router.post(path="/one")
-def upload_one_recommendation(type: data: dict):
-    
+def upload_one_recommendation(
+    description: str,
+    data_type: str,
+    coordinates: PolygonCoords,
+):
+    recommendation = Recommendation(
+        description=description,
+        data_type=_find_data_type_by_name(data_type),
+        polygon=Polygon(type="Polygon", coordinates=coordinates),
+    )
+    return recommendation
