@@ -7,14 +7,11 @@ from pydantic_settings import (
     TomlConfigSettingsSource,
 )
 
-IS_DOCKER_CONTAINER = bool(os.getenv("DOCKER_CONTAINER", False))
-CONFIG_FILE = "/app/config/config.toml" if IS_DOCKER_CONTAINER else "devconfig.toml"
+CONFIG_FILE = str(os.getenv("CONFIG_FILE", "config.toml"))
 
 
 class TomlSettings(BaseSettings):
     model_config = SettingsConfigDict(toml_file=CONFIG_FILE)
-
-    is_docker_container: bool = IS_DOCKER_CONTAINER
 
     @classmethod
     def settings_customise_sources(
