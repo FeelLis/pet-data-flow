@@ -1,18 +1,18 @@
+from typing import Callable
+
 import pika
 from loguru import logger
 from pika.exceptions import AMQPConnectionError
-from pydantic import BaseModel
-
-from config import config
 
 
-class RabbitMQProducer:
-    def __init__(self, host: str, queue: str, exchange: str = ""):
+class RabbitMQConsumer:
+    def __init__(self, host: str, queue_name: str, handler: Callable):
+
         self.host = host
-        self.queue = queue
-        self.exchange = exchange
+        self.queue_name = queue_name
         self.connection = None
         self.channel = None
+        self.handler = handler
         self._connect()
 
     def _connect(self):
@@ -22,15 +22,17 @@ class RabbitMQProducer:
                 pika.ConnectionParameters(self.host)
             )
             self.channel = self.connection.channel()
-            self.channel.queue_declare(queue=self.queue)
-            logger.success(f"Successfully connected and declared queue '{self.queue}'.")
+            self.channel.queue_declare(queue=self.queue_name)
+            logger.success(
+                f"Successfully connected and declared queue '{self.queue_name}'."
+            )
         except AMQPConnectionError as e:
             logger.error(f"Could not connect to RabbitMQ: {e}")
             self.connection = None
             self.channel = None
-            raise
+            raise  # TODO: retry mechanism
 
-    def send_message(self, message: BaseModel):
+    def start_consuming(self):
         if not self.channel or not self.connection or self.connection.is_closed:
             logger.warning(
                 "Connection lost or not established. Attempting to reconnect..."
@@ -38,29 +40,21 @@ class RabbitMQProducer:
             self._connect()
 
         try:
-            self.channel.basic_publish(
-                exchange=self.exchange,
-                routing_key=self.queue,
-                body=message.model_dump_json(),
-                properties=pika.BasicProperties(
-                    content_type="application/json",
-                ),
+            self.channel.basic_consume(
+                queue=self.queue_name,
+                on_message_callback=self.handler,
+                auto_ack=True,
             )
-            logger.success(f"Sent message to '{self.queue}'.")
-
+            logger.info("Waiting for messages...")
+            self.channel.start_consuming()
         except AMQPConnectionError as e:
-            logger.error(f"AMQP connection error during publish: {e}")
-            self.connection = None
-            self.channel = None
-            raise
+            logger.error(f"AMQP connection error during consume start: {e}")
         except Exception as e:
-            logger.error(f"An unexpected error occurred during publish: {e}")
-            raise
+            logger.error(f"An unexpected error occurred during consuming: {e}")
+        finally:
+            self.close()
 
     def close(self):
         if self.connection and self.connection.is_open:
             self.connection.close()
             logger.info("RabbitMQ connection closed.")
-
-
-producer = RabbitMQProducer(host=config.rabbitmq.host, queue=config.rabbitmq.queue)
