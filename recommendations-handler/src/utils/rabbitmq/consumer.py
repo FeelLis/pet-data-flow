@@ -6,10 +6,10 @@ from pika.exceptions import AMQPConnectionError
 
 
 class RabbitMQConsumer:
-    def __init__(self, host: str, queue_name: str, handler: Callable):
+    def __init__(self, host: str, queue: str, handler: Callable):
 
         self.host = host
-        self.queue_name = queue_name
+        self.queue = queue
         self.connection = None
         self.channel = None
         self.handler = handler
@@ -22,10 +22,8 @@ class RabbitMQConsumer:
                 pika.ConnectionParameters(self.host)
             )
             self.channel = self.connection.channel()
-            self.channel.queue_declare(queue=self.queue_name)
-            logger.success(
-                f"Successfully connected and declared queue '{self.queue_name}'."
-            )
+            self.channel.queue_declare(queue=self.queue)
+            logger.success(f"Successfully connected and declared queue '{self.queue}'.")
         except AMQPConnectionError as e:
             logger.error(f"Could not connect to RabbitMQ: {e}")
             self.connection = None
@@ -41,7 +39,7 @@ class RabbitMQConsumer:
 
         try:
             self.channel.basic_consume(
-                queue=self.queue_name,
+                queue=self.queue,
                 on_message_callback=self.handler,
                 auto_ack=True,
             )

@@ -16,10 +16,15 @@ class RabbitMQSettings(BaseModel):
     queue: str
 
 
+class MongoDBSettings(BaseModel):
+    url: str
+
+
 class Config(TomlSettings):
     service_name: str
     debug_mode: bool
 
+    mongodb: MongoDBSettings
     rabbitmq: RabbitMQSettings
     data_types: list[DataType]
 

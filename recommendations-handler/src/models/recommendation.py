@@ -1,7 +1,5 @@
-from typing import Self
-
 import pymongo
-from beanie import Document, Go, Indexed
+from beanie import Document
 from geojson_pydantic import Polygon
 
 from config import DataType

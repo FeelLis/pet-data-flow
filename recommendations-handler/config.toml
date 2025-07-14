@@ -1,0 +1,17 @@
+service_name = "recommendations-api"
+debug_mode = false
+
+[rabbitmq]
+host = "localhost"
+queue = "api_2_handler"
+
+[mongodb]
+url = "localhost"
+
+[[data_types]]
+name = "pistachios"
+area_size = [1, 3]
+
+[[data_types]]
+name = "clementines"
+area_size = [3, 50]
