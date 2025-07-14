@@ -12,12 +12,20 @@ from utils.sync_wrapper import sync
 
 @sync
 async def handle_recommendation(data: dict):
-    recommendation = Recommendation(**data)
+    try:
+        recommendation = Recommendation(
+            id=data["id"],
+            description=data["description"],
+            data_type=data["data_type"]["name"],
+            polygon=data["polygon"],
+        )
+    except Exception as e:
+        logger.error(f"Failed to deserialize data: {e}")
+        raise
 
     existing = await Recommendation.find_one(
         {"polygon": {"$geoWithin": {"$geometry": recommendation.polygon.model_dump()}}}
     )
-
     if existing:
         logger.warning(
             f"Polygon {recommendation.id} is inside polygon {existing.id}, skipping."

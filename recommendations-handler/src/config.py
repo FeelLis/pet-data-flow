@@ -1,13 +1,6 @@
-from typing import Annotated
-
-from pydantic import BaseModel, Field, PositiveFloat
+from pydantic import BaseModel
 
 from utils.toml_settings import TomlSettings
-
-
-class DataType(BaseModel):
-    name: str
-    area_size: Annotated[tuple[PositiveFloat, PositiveFloat], Field(max_length=2)]
 
 
 class RabbitMQSettings(BaseModel):
@@ -22,11 +15,9 @@ class MongoDBSettings(BaseModel):
 
 class Config(TomlSettings):
     service_name: str
-    debug_mode: bool
 
     mongodb: MongoDBSettings
     rabbitmq: RabbitMQSettings
-    data_types: list[DataType]
 
 
 config = Config()  # type: ignore
