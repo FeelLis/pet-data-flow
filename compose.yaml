@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+
+  recommendations-api:
+    build:
+      context: ./recommendations-api
+    container_name: recommendations-api
+    volumes:
+      - ./recommendations-api:/app
+    depends_on:
+      - rabbitmq
+    ports:
+      - 8080:8080
+
+  recommendations-handler:
+    build:
+      context: ./recommendations-handler
+    container_name: recommendations-handler
+    volumes:
+      - ./recommendations-handler:/app
+    depends_on:
+      - rabbitmq
+      - mongodb
