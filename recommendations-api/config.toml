@@ -2,7 +2,7 @@ service_name = "recommendations-api"
 debug_mode = false
 
 [rabbitmq]
-url = "amqp://guest:guest@127.0.0.1/"
+url = "amqp://guest:guest@rabbitmq/"
 queue_name = "api_2_handler"
 
 [[data_types]]
