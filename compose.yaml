@@ -10,23 +10,38 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   mongodb:
     image: mongo
     container_name: mongodb
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+
 
   recommendations-api:
     build:
       context: ./recommendations-api
+    ports:
+      - 8080:8080
     container_name: recommendations-api
     volumes:
       - ./recommendations-api:/app
     depends_on:
-      - rabbitmq
-    ports:
-      - 8080:8080
+      rabbitmq:
+        condition: service_healthy
 
   recommendations-handler:
     build:
@@ -35,5 +50,7 @@ services:
     volumes:
       - ./recommendations-handler:/app
     depends_on:
-      - rabbitmq
-      - mongodb
+      rabbitmq:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
