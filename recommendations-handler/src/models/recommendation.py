@@ -8,7 +8,7 @@ class Recommendation(Document):
     data_type: str
     polygon: Polygon
 
-    class Collection:
+    class Settings:
         name = "recommendations"
         indexes = [
             [("id", pymongo.TEXT), ("description", pymongo.TEXT)],

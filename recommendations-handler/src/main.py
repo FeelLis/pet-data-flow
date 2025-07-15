@@ -37,8 +37,12 @@ async def handle_recommendation(data: dict):
 
 
 async def main():
-    client = AsyncIOMotorClient(config.mongodb.url)
-    await init_beanie(database=client.db_name, document_models=[Recommendation])
+    try:
+        logger.info("Initializing connection to MongoDB...")
+        client = AsyncIOMotorClient(config.mongodb.url)
+        await init_beanie(database=client.db_name, document_models=[Recommendation])
+    except Exception as e:
+        logger.error(f"Failed to connect to MongoDB: {e}")
 
     consumer = RabbitMQConsumer(
         host=config.rabbitmq.host,
