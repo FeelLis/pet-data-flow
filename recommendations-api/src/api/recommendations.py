@@ -8,7 +8,7 @@ from pydantic import BaseModel
 
 from config import DataType, config
 from models.recommendation import Recommendation
-from utils.rabbitmq.producer import producer
+from utils.rabbitmq.publisher import publisher
 
 router = APIRouter(prefix="/recommendations")
 
@@ -20,7 +20,7 @@ class RecommendationInput(BaseModel):
 
 
 @router.post(path="/one")
-def upload_one_recommendation(
+async def upload_one_recommendation(
     recommendation_input: RecommendationInput,
 ):
     def _find_data_type_by_name(data_type_name: str) -> DataType:
@@ -43,13 +43,13 @@ def upload_one_recommendation(
         return str(e)
 
     logger.info(f"Got new recommendation: {recommendation.id}.")
-    producer.send_message(recommendation)
+    await publisher.publish(recommendation)
 
     return "Successfully sent new recommendation to DB."
 
 
 @router.post(path="/many")
-def upload_many_recommendation(recommendations: list[RecommendationInput]):
+async def upload_many_recommendation(recommendations: list[RecommendationInput]):
     for recommendation in recommendations:
-        upload_one_recommendation(recommendation)
+        await upload_one_recommendation(recommendation)
     return "Successfully sent new recommendations to DB."

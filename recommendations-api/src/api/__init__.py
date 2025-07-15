@@ -1,11 +1,11 @@
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-from .routes import router
+from .recommendations import router as recommendations_router
 
-app = FastAPI()
-app.include_router(router)
+router = APIRouter()
+router.include_router(recommendations_router)
 
 
-@app.get("/health")
+@router.get("/health")
 def healthcheck():
     return 200

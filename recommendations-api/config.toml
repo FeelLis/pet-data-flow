@@ -2,8 +2,8 @@ service_name = "recommendations-api"
 debug_mode = false
 
 [rabbitmq]
-host = "localhost"
-queue = "api_2_handler"
+url = "amqp://guest:guest@127.0.0.1/"
+queue_name = "api_2_handler"
 
 [[data_types]]
 name = "pistachios"

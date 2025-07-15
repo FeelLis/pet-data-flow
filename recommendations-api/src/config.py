@@ -11,9 +11,8 @@ class DataType(BaseModel):
 
 
 class RabbitMQSettings(BaseModel):
-    host: str
-    exchange: str = ""
-    queue: str
+    url: str
+    queue_name: str
 
 
 class Config(TomlSettings):
