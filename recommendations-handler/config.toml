@@ -1,8 +1,8 @@
 service_name = "recommendations-handler"
 
 [rabbitmq]
-host = "localhost"
-queue = "api_2_handler"
+url = "localhost"
+queue_name = "api_2_handler"
 
 [mongodb]
-url = "localhost"
+url = "mongodb://localhost:27017"

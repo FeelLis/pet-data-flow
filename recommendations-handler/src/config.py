@@ -4,9 +4,9 @@ from utils.toml_settings import TomlSettings
 
 
 class RabbitMQSettings(BaseModel):
-    host: str
+    url: str
     exchange: str = ""
-    queue: str
+    queue_name: str
 
 
 class MongoDBSettings(BaseModel):
