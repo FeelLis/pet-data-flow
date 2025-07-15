@@ -1,7 +1,7 @@
 from typing import Self
 
 from geojson_pydantic import Polygon
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, model_serializer, model_validator
 from shapely import Polygon as ShapelyPolygon
 
 from config import DataType
@@ -12,6 +12,12 @@ class Recommendation(BaseModel):
     description: str
     data_type: DataType
     polygon: Polygon
+
+    @model_serializer(when_used="json")
+    def serialize_data_type(self) -> dict:
+        data = self.model_dump()
+        data["data_type"] = self.data_type.name
+        return data
 
     @model_validator(mode="after")
     def check_data_type(self) -> Self:
