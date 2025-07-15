@@ -4,6 +4,7 @@ from geojson_pydantic import Polygon
 
 
 class Recommendation(Document):
+    id: str = ""
     description: str
     data_type: str
     polygon: Polygon
