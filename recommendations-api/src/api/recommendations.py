@@ -1,13 +1,12 @@
 import uuid
 
+from config import DataType, config
 from fastapi import APIRouter
 from geojson_pydantic import Polygon
 from geojson_pydantic.types import PolygonCoords
 from loguru import logger
-from pydantic import BaseModel
-
-from config import DataType, config
 from models.recommendation import Recommendation
+from pydantic import BaseModel
 from utils.rabbitmq.publisher import publisher
 
 router = APIRouter(prefix="/recommendations")
@@ -22,7 +21,7 @@ class RecommendationInput(BaseModel):
 @router.post(path="/one")
 async def upload_one_recommendation(
     recommendation_input: RecommendationInput,
-):
+) -> str:
     def _find_data_type_by_name(data_type_name: str) -> DataType:
         for data_type_obj in config.data_types:
             if data_type_obj.name == data_type_name:
@@ -49,7 +48,7 @@ async def upload_one_recommendation(
 
 
 @router.post(path="/many")
-async def upload_many_recommendation(recommendations: list[RecommendationInput]):
+async def upload_many_recommendation(recommendations: list[RecommendationInput]) -> str:
     for recommendation in recommendations:
         await upload_one_recommendation(recommendation)
     return "Successfully sent new recommendations to DB."
